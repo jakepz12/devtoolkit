@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   title: "DevToolKit - Portfolio, Retro, Reader for Developers",
   description:
     "B2B SaaS platform for developers: Portfolio Constructor, Retro Board, Article Reader. All in one place, for free.",
+  manifest: "/manifest.json",
+  themeColor: "#00f0ff",
 };
 
 export default function RootLayout({
