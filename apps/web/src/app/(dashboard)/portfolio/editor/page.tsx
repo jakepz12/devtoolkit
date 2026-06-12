@@ -5,7 +5,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { api } from "@/lib/api";
+import { ProjectForm } from "@/components/portfolio/project-form";
+import { SkillForm } from "@/components/portfolio/skill-form";
+import { ExperienceForm } from "@/components/portfolio/experience-form";
 
 const themes = [
   { id: "neon-dark", name: "Neon Dark", color: "#00f0ff" },
@@ -35,6 +39,27 @@ export default function PortfolioEditorPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
 
+  // Projects state
+  const [projects, setProjects] = useState<any[]>([]);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
+
+  // Skills state
+  const [skills, setSkills] = useState<any[]>([]);
+  const [showSkillModal, setShowSkillModal] = useState(false);
+  const [editingSkill, setEditingSkill] = useState<any>(null);
+
+  // Experience state
+  const [experiences, setExperiences] = useState<any[]>([]);
+  const [showExperienceModal, setShowExperienceModal] = useState(false);
+  const [editingExperience, setEditingExperience] = useState<any>(null);
+
+  // Contact state
+  const [email, setEmail] = useState("");
+  const [github, setGithub] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [twitter, setTwitter] = useState("");
+
   useEffect(() => {
     if (portfolioId) {
       api.getPortfolioBySlug(portfolioId).then((data) => {
@@ -42,6 +67,23 @@ export default function PortfolioEditorPage() {
         setBio(data.bio || "");
         setSlug(data.slug);
         setSelectedTheme(data.theme);
+        setProjects(data.projects || []);
+        // Parse skills and experience from sections
+        const skillsSection = data.sections?.find((s: any) => s.type === "skills");
+        if (skillsSection?.content?.skills) {
+          setSkills(skillsSection.content.skills);
+        }
+        const expSection = data.sections?.find((s: any) => s.type === "experience");
+        if (expSection?.content?.experiences) {
+          setExperiences(expSection.content.experiences);
+        }
+        const contactSection = data.sections?.find((s: any) => s.type === "contact");
+        if (contactSection?.content) {
+          setEmail(contactSection.content.email || "");
+          setGithub(contactSection.content.github || "");
+          setLinkedin(contactSection.content.linkedin || "");
+          setTwitter(contactSection.content.twitter || "");
+        }
       }).catch(() => {});
     }
   }, [portfolioId]);
@@ -73,6 +115,59 @@ export default function PortfolioEditorPage() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSaveProject = (project: any) => {
+    if (editingProject?.id) {
+      setProjects((prev) =>
+        prev.map((p) => (p.id === editingProject.id ? { ...p, ...project } : p))
+      );
+    } else {
+      setProjects((prev) => [...prev, { ...project, id: `temp-${Date.now()}` }]);
+    }
+    setShowProjectModal(false);
+    setEditingProject(null);
+  };
+
+  const handleDeleteProject = (id: string) => {
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleSaveSkill = (skill: any) => {
+    if (editingSkill?.id) {
+      setSkills((prev) =>
+        prev.map((s) => (s.id === editingSkill.id ? { ...s, ...skill } : s))
+      );
+    } else {
+      setSkills((prev) => [...prev, { ...skill, id: `temp-${Date.now()}` }]);
+    }
+    setShowSkillModal(false);
+    setEditingSkill(null);
+  };
+
+  const handleDeleteSkill = (id: string) => {
+    setSkills((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const handleSaveExperience = (experience: any) => {
+    if (editingExperience?.id) {
+      setExperiences((prev) =>
+        prev.map((e) =>
+          e.id === editingExperience.id ? { ...e, ...experience } : e
+        )
+      );
+    } else {
+      setExperiences((prev) => [
+        ...prev,
+        { ...experience, id: `temp-${Date.now()}` },
+      ]);
+    }
+    setShowExperienceModal(false);
+    setEditingExperience(null);
+  };
+
+  const handleDeleteExperience = (id: string) => {
+    setExperiences((prev) => prev.filter((e) => e.id !== id));
   };
 
   return (
@@ -142,6 +237,7 @@ export default function PortfolioEditorPage() {
               border: "1px solid #2a2a3a",
             }}
           >
+            {/* Profile Section */}
             {activeSection === "profile" && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Profile</h2>
@@ -192,65 +288,244 @@ export default function PortfolioEditorPage() {
               </div>
             )}
 
+            {/* Projects Section */}
             {activeSection === "projects" && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Projects</h2>
-                <p className="text-sm text-text-muted">
-                  Add your projects to showcase your work.
-                </p>
-                <Button variant="secondary" className="w-full">
-                  + Add Project
-                </Button>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Projects</h2>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setEditingProject(null);
+                      setShowProjectModal(true);
+                    }}
+                  >
+                    + Add Project
+                  </Button>
+                </div>
+                {projects.length === 0 ? (
+                  <p className="text-sm text-text-muted">
+                    No projects yet. Add your first project.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {projects.map((project) => (
+                      <div
+                        key={project.id}
+                        className="flex items-center justify-between rounded-lg p-3"
+                        style={{ background: "rgba(0, 240, 255, 0.05)" }}
+                      >
+                        <div>
+                          <h4 className="font-medium">{project.title}</h4>
+                          <p className="text-xs text-text-muted">
+                            {project.technologies?.join(", ")}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingProject(project);
+                              setShowProjectModal(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteProject(project.id)}
+                            className="text-neon-red"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
+            {/* Skills Section */}
             {activeSection === "skills" && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Skills</h2>
-                <p className="text-sm text-text-muted">
-                  Add your technical skills.
-                </p>
-                <Button variant="secondary" className="w-full">
-                  + Add Skill
-                </Button>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Skills</h2>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setEditingSkill(null);
+                      setShowSkillModal(true);
+                    }}
+                  >
+                    + Add Skill
+                  </Button>
+                </div>
+                {skills.length === 0 ? (
+                  <p className="text-sm text-text-muted">
+                    No skills yet. Add your first skill.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {skills.map((skill) => (
+                      <div
+                        key={skill.id}
+                        className="flex items-center justify-between rounded-lg p-3"
+                        style={{ background: "rgba(0, 240, 255, 0.05)" }}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">{skill.name}</h4>
+                            <span className="text-xs text-text-muted">
+                              {skill.level}%
+                            </span>
+                          </div>
+                          <div className="mt-1 h-2 w-full rounded-full bg-bg-tertiary">
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${skill.level}%`,
+                                background:
+                                  "linear-gradient(90deg, #00f0ff, #ff00ff)",
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="ml-4 flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingSkill(skill);
+                              setShowSkillModal(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteSkill(skill.id)}
+                            className="text-neon-red"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
+            {/* Experience Section */}
             {activeSection === "experience" && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Experience</h2>
-                <p className="text-sm text-text-muted">
-                  Add your work experience.
-                </p>
-                <Button variant="secondary" className="w-full">
-                  + Add Experience
-                </Button>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Experience</h2>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setEditingExperience(null);
+                      setShowExperienceModal(true);
+                    }}
+                  >
+                    + Add Experience
+                  </Button>
+                </div>
+                {experiences.length === 0 ? (
+                  <p className="text-sm text-text-muted">
+                    No experience yet. Add your work experience.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {experiences.map((exp) => (
+                      <div
+                        key={exp.id}
+                        className="flex items-center justify-between rounded-lg p-3"
+                        style={{ background: "rgba(0, 240, 255, 0.05)" }}
+                      >
+                        <div>
+                          <h4 className="font-medium">{exp.role}</h4>
+                          <p className="text-sm text-text-muted">
+                            {exp.company}
+                          </p>
+                          <p className="text-xs text-text-muted">
+                            {exp.start_date} - {exp.end_date || "Present"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingExperience(exp);
+                              setShowExperienceModal(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteExperience(exp.id)}
+                            className="text-neon-red"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
+            {/* Contact Section */}
             {activeSection === "contact" && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Contact</h2>
-                <p className="text-sm text-text-muted">
-                  Add your contact information.
-                </p>
                 <div>
                   <label className="mb-1 block text-sm text-text-secondary">
                     Email
                   </label>
-                  <Input placeholder="you@example.com" />
+                  <Input
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="mb-1 block text-sm text-text-secondary">
                     GitHub
                   </label>
-                  <Input placeholder="https://github.com/username" />
+                  <Input
+                    placeholder="https://github.com/username"
+                    value={github}
+                    onChange={(e) => setGithub(e.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="mb-1 block text-sm text-text-secondary">
                     LinkedIn
                   </label>
-                  <Input placeholder="https://linkedin.com/in/username" />
+                  <Input
+                    placeholder="https://linkedin.com/in/username"
+                    value={linkedin}
+                    onChange={(e) => setLinkedin(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm text-text-secondary">
+                    Twitter
+                  </label>
+                  <Input
+                    placeholder="https://twitter.com/username"
+                    value={twitter}
+                    onChange={(e) => setTwitter(e.target.value)}
+                  />
                 </div>
               </div>
             )}
@@ -301,8 +576,76 @@ export default function PortfolioEditorPage() {
               />
             </label>
           </div>
+
+          {slug && (
+            <div className="mt-6">
+              <h3 className="mb-2 text-sm font-semibold text-text-muted">
+                SHARE
+              </h3>
+              <p className="text-xs text-text-muted break-all">
+                devtoolkit.app/{slug}
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Project Modal */}
+      <Modal
+        isOpen={showProjectModal}
+        onClose={() => {
+          setShowProjectModal(false);
+          setEditingProject(null);
+        }}
+        title={editingProject ? "Edit Project" : "Add Project"}
+      >
+        <ProjectForm
+          project={editingProject}
+          onSave={handleSaveProject}
+          onCancel={() => {
+            setShowProjectModal(false);
+            setEditingProject(null);
+          }}
+        />
+      </Modal>
+
+      {/* Skill Modal */}
+      <Modal
+        isOpen={showSkillModal}
+        onClose={() => {
+          setShowSkillModal(false);
+          setEditingSkill(null);
+        }}
+        title={editingSkill ? "Edit Skill" : "Add Skill"}
+      >
+        <SkillForm
+          skill={editingSkill}
+          onSave={handleSaveSkill}
+          onCancel={() => {
+            setShowSkillModal(false);
+            setEditingSkill(null);
+          }}
+        />
+      </Modal>
+
+      {/* Experience Modal */}
+      <Modal
+        isOpen={showExperienceModal}
+        onClose={() => {
+          setShowExperienceModal(false);
+          setEditingExperience(null);
+        }}
+        title={editingExperience ? "Edit Experience" : "Add Experience"}
+      >
+        <ExperienceForm
+          experience={editingExperience}
+          onSave={handleSaveExperience}
+          onCancel={() => {
+            setShowExperienceModal(false);
+            setEditingExperience(null);
+          }}
+        />
+      </Modal>
     </div>
   );
 }
