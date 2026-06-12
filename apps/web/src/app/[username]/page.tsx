@@ -18,9 +18,10 @@ async function getPortfolio(username: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }): Promise<Metadata> {
-  const portfolio = await getPortfolio(params.username);
+  const { username } = await params;
+  const portfolio = await getPortfolio(username);
 
   if (!portfolio) {
     return { title: "Portfolio Not Found" };
@@ -40,9 +41,10 @@ export async function generateMetadata({
 export default async function PublicPortfolioPage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const portfolio = await getPortfolio(params.username);
+  const { username } = await params;
+  const portfolio = await getPortfolio(username);
 
   if (!portfolio) {
     notFound();
