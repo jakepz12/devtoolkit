@@ -116,6 +116,42 @@ class ApiClient {
     });
   }
 
+  // Tags
+  async getTags() {
+    return this.request<any[]>("/api/v1/tags/");
+  }
+
+  async createTag(name: string, color: string) {
+    return this.request<any>("/api/v1/tags/", {
+      method: "POST",
+      body: JSON.stringify({ name, color }),
+    });
+  }
+
+  async deleteTag(id: string) {
+    return this.request<void>(`/api/v1/tags/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Folders
+  async getFolders() {
+    return this.request<any[]>("/api/v1/folders/");
+  }
+
+  async createFolder(name: string) {
+    return this.request<any>("/api/v1/folders/", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+  }
+
+  async deleteFolder(id: string) {
+    return this.request<void>(`/api/v1/folders/${id}`, {
+      method: "DELETE",
+    });
+  }
+
   // Health check
   async healthCheck() {
     return this.request<{ status: string }>("/health");
