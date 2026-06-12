@@ -1,0 +1,17 @@
+{
+  "name": "devtoolkit",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "prettier": "^3.4.0",
+    "eslint": "^9.18.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
