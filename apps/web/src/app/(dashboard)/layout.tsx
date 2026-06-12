@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { MobileNav } from "@/components/mobile-nav";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "🏠" },
@@ -20,9 +21,12 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
+      {/* Mobile Navigation */}
+      <MobileNav />
+
+      {/* Desktop Sidebar */}
       <aside
-        className="fixed left-0 top-0 flex h-full w-64 flex-col border-r"
+        className="fixed left-0 top-0 hidden h-full w-64 flex-col border-r lg:flex"
         style={{
           background: "#12121a",
           borderColor: "#2a2a3a",
@@ -83,7 +87,9 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 flex-1 p-8">{children}</main>
+      <main className="ml-0 flex-1 p-4 pt-16 pb-20 lg:ml-64 lg:p-8 lg:pt-8 lg:pb-8">
+        {children}
+      </main>
     </div>
   );
 }
