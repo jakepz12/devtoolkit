@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api import auth, portfolio, articles, retro, health
+from app.api import auth, portfolio, articles, retro, health, tags, folders
 from app.utils.database import engine, Base
 
 
@@ -35,6 +35,8 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(portfolio.router, prefix="/api/v1/portfolio", tags=["portfolio"])
 app.include_router(articles.router, prefix="/api/v1/articles", tags=["articles"])
 app.include_router(retro.router, prefix="/api/v1/retro", tags=["retro"])
+app.include_router(tags.router, prefix="/api/v1/tags", tags=["tags"])
+app.include_router(folders.router, prefix="/api/v1/folders", tags=["folders"])
 app.include_router(health.router, tags=["health"])
 
 
