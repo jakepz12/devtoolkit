@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { api } from "@/lib/api";
 
 const themes = [
   { id: "neon-dark", name: "Neon Dark", color: "#00f0ff" },
@@ -21,11 +23,57 @@ const sections = [
 ];
 
 export default function PortfolioEditorPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const portfolioId = searchParams.get("id");
+
   const [title, setTitle] = useState("");
   const [bio, setBio] = useState("");
   const [slug, setSlug] = useState("");
   const [selectedTheme, setSelectedTheme] = useState("neon-dark");
   const [activeSection, setActiveSection] = useState("profile");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
+
+  useEffect(() => {
+    if (portfolioId) {
+      api.getPortfolioBySlug(portfolioId).then((data) => {
+        setTitle(data.title);
+        setBio(data.bio || "");
+        setSlug(data.slug);
+        setSelectedTheme(data.theme);
+      }).catch(() => {});
+    }
+  }, [portfolioId]);
+
+  const handleSave = async () => {
+    if (!title || !slug) return;
+    setIsSaving(true);
+
+    try {
+      if (portfolioId) {
+        await api.updatePortfolio(portfolioId, {
+          title,
+          bio,
+          theme: selectedTheme,
+        });
+      } else {
+        await api.createPortfolio({
+          title,
+          bio,
+          slug,
+          theme: selectedTheme,
+          is_public: true,
+        });
+      }
+      setIsPublished(true);
+      setTimeout(() => setIsPublished(false), 2000);
+    } catch (err) {
+      console.error("Save failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div>
@@ -44,7 +92,13 @@ export default function PortfolioEditorPage() {
           <Button variant="secondary" size="sm">
             Preview
           </Button>
-          <Button size="sm">Publish</Button>
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={isSaving || !title || !slug}
+          >
+            {isSaving ? "Saving..." : isPublished ? "Saved!" : "Publish"}
+          </Button>
         </div>
       </div>
 
@@ -131,6 +185,7 @@ export default function PortfolioEditorPage() {
                             .replace(/[^a-z0-9-]/g, "")
                         )
                       }
+                      disabled={!!portfolioId}
                     />
                   </div>
                 </div>

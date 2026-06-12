@@ -2,33 +2,35 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { api } from "@/lib/api";
 
 export default function AddArticlePage() {
+  const router = useRouter();
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [preview, setPreview] = useState<{
-    title: string;
-    author: string;
-    wordCount: number;
-    readingTime: number;
-  } | null>(null);
+  const [error, setError] = useState("");
+  const [preview, setPreview] = useState<any>(null);
 
   const handleParse = async () => {
     if (!url) return;
     setIsLoading(true);
+    setError("");
 
-    // Simulate parsing
-    setTimeout(() => {
-      setPreview({
-        title: "Article Title",
-        author: "Author Name",
-        wordCount: 2400,
-        readingTime: 12,
-      });
+    try {
+      const article = await api.addArticle(url);
+      setPreview(article);
+    } catch (err: any) {
+      setError(err.message || "Failed to parse article");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
+  };
+
+  const handleAdd = () => {
+    router.push("/reader");
   };
 
   return (
@@ -54,12 +56,19 @@ export default function AddArticlePage() {
       >
         <h2 className="mb-6 text-lg font-semibold">Paste Article URL</h2>
 
+        {error && (
+          <div className="mb-4 rounded-lg bg-neon-red/10 p-3 text-sm text-neon-red">
+            {error}
+          </div>
+        )}
+
         <div className="flex gap-2">
           <Input
             placeholder="https://example.com/article"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             className="flex-1"
+            disabled={isLoading}
           />
           <Button onClick={handleParse} disabled={isLoading || !url}>
             {isLoading ? "Parsing..." : "Parse"}
@@ -67,14 +76,25 @@ export default function AddArticlePage() {
         </div>
 
         {preview && (
-          <div className="mt-6 rounded-lg p-4" style={{ background: "rgba(0, 240, 255, 0.05)" }}>
-            <h3 className="font-semibold">{preview.title}</h3>
-            <p className="mt-1 text-sm text-text-muted">by {preview.author}</p>
+          <div
+            className="mt-6 rounded-lg p-4"
+            style={{ background: "rgba(0, 240, 255, 0.05)" }}
+          >
+            <h3 className="font-semibold">{preview.title || "Untitled"}</h3>
+            {preview.author && (
+              <p className="mt-1 text-sm text-text-muted">
+                by {preview.author}
+              </p>
+            )}
             <div className="mt-2 flex gap-4 text-sm text-text-secondary">
-              <span>{preview.wordCount.toLocaleString()} words</span>
-              <span>{preview.readingTime} min read</span>
+              {preview.word_count && (
+                <span>{preview.word_count.toLocaleString()} words</span>
+              )}
+              {preview.reading_time_minutes && (
+                <span>{preview.reading_time_minutes} min read</span>
+              )}
             </div>
-            <Button className="mt-4" size="sm">
+            <Button className="mt-4" size="sm" onClick={handleAdd}>
               Add to Library
             </Button>
           </div>

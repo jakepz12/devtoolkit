@@ -2,35 +2,31 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { api } from "@/lib/api";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const login = useAuthStore((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem("token", data.access_token);
-        window.location.href = "/dashboard";
-      }
-    } catch {
-      console.error("Login failed");
+      const data = await api.login({ email, password });
+      login(data.access_token, data.user);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +61,12 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-lg bg-neon-red/10 p-3 text-sm text-neon-red">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

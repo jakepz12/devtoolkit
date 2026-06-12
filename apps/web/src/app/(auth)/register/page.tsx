@@ -2,34 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { api } from "@/lib/api";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, username, password }),
-        }
-      );
-
-      if (res.ok) {
-        window.location.href = "/login";
-      }
-    } catch {
-      console.error("Registration failed");
+      await api.register({ email, username, password });
+      router.push("/login");
+    } catch (err: any) {
+      setError(err.message || "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +59,12 @@ export default function RegisterPage() {
           </Link>
         </p>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded-lg bg-neon-red/10 p-3 text-sm text-neon-red">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
