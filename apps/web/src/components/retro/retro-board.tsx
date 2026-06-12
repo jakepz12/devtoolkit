@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Timer } from "./timer";
 
 interface Card {
   id: string;
@@ -166,10 +167,8 @@ export function RetroBoard({ template, onExport }: RetroBoardProps) {
           <Button variant="secondary" size="sm" onClick={onExport}>
             📄 Export PDF
           </Button>
-          <Button variant="ghost" size="sm">
-            ⏱️ Timer
-          </Button>
         </div>
+        <Timer duration={600} />
       </div>
 
       <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}>
