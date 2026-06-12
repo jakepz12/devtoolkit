@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <main className="min-h-screen">
@@ -14,6 +16,10 @@ export default function HomePage() {
             }}
           />
         </div>
+
+        {/* Animated orbs */}
+        <div className="absolute left-1/4 top-1/4 h-96 w-96 animate-pulse rounded-full opacity-20 blur-3xl" style={{ background: "#00f0ff" }} />
+        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full opacity-20 blur-3xl" style={{ background: "#ff00ff", animationDelay: "1s" }} />
 
         <div className="relative z-10 mx-auto max-w-5xl text-center">
           <h1
@@ -39,7 +45,7 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
+            <Link
               href="/register"
               className="inline-flex h-12 items-center rounded-lg px-8 text-base font-medium text-black transition-all hover:scale-105"
               style={{
@@ -48,14 +54,14 @@ export default function HomePage() {
               }}
             >
               Начать бесплатно
-            </a>
-            <a
+            </Link>
+            <Link
               href="#features"
               className="inline-flex h-12 items-center rounded-lg border px-8 text-base font-medium text-neon-cyan transition-all hover:bg-neon-cyan/10"
               style={{ borderColor: "#00f0ff" }}
             >
               Узнать больше
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -99,23 +105,53 @@ export default function HomePage() {
               title="Portfolio"
               description="Конструктор портфолио для разработчиков и дизайнеров. Без кода, с SEO."
               href="/portfolio"
+              icon="🎨"
             />
             <ProductCard
               title="Retro Board"
               description="Анонимные ретроспективы в реальном времени. Шаблоны, голосование, PDF."
               href="/retro"
+              icon="📋"
             />
             <ProductCard
               title="Article Reader"
               description="Читалка статей с прогрессом, тегами, папками и оффлайн-режимом."
               href="/reader"
+              icon="📖"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* How it works Section */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-16 text-center text-3xl font-bold md:text-4xl">
+            Как это работает
+          </h2>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            <StepCard
+              number="1"
+              title="Зарегистрируйтесь"
+              description="Создайте аккаунт за секунды через Google, GitHub или email."
+            />
+            <StepCard
+              number="2"
+              title="Заполните профиль"
+              description="Добавьте информацию о себе, проекты, навыки и опыт."
+            />
+            <StepCard
+              number="3"
+              title="Опубликуйте"
+              description="Получите публичную страницу с кастомным URL и SEO."
             />
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="px-6 py-24">
+      <section id="pricing" className="px-6 py-24" style={{ background: "#12121a" }}>
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-16 text-center text-3xl font-bold md:text-4xl">
             Простое ценообразование
@@ -167,10 +203,103 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-16 text-center text-3xl font-bold md:text-4xl">
+            Частые вопросы
+          </h2>
+
+          <div className="space-y-6">
+            <FAQItem
+              question="Бесплатно ли использовать?"
+              answer="Да! Базовый функционал полностью бесплатный. Вы можете создать портфолио, провести ретроспективы и читать статьи без оплаты."
+            />
+            <FAQItem
+              question="Можно ли кастомизировать портфолио?"
+              answer="Да, у нас 4 темы оформления. Вы можете выбрать любую и настроить контент."
+            />
+            <FAQItem
+              question="Как работает анонимность в ретро?"
+              answer="Участники не регистрируются и не вводят имя. Все карточки анонимны, что обеспечивает честную обратную связь."
+            />
+            <FAQItem
+              question="Работает ли оффлайн?"
+              answer="Да, Article Reader поддерживает PWA и работает оффлайн после первой загрузки."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 py-24" style={{ background: "#12121a" }}>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="mb-6 text-3xl font-bold md:text-4xl">
+            Готовы начать?
+          </h2>
+          <p className="mb-8 text-lg text-text-secondary">
+            Создайте портфолио за 10 минут. Бесплатно, без кредитной карты.
+          </p>
+          <Link
+            href="/register"
+            className="inline-flex h-12 items-center rounded-lg px-8 text-base font-medium text-black transition-all hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg, #00f0ff, #ff00ff)",
+              boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)",
+            }}
+          >
+            Начать бесплатно
+          </Link>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t px-6 py-12" style={{ borderColor: "#2a2a3a" }}>
-        <div className="mx-auto max-w-5xl text-center text-text-muted">
-          <p>&copy; 2025 DevToolKit. Built with passion.</p>
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-8 md:grid-cols-4">
+            <div>
+              <h3 className="mb-4 text-lg font-bold">
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #00f0ff, #ff00ff)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  DevToolKit
+                </span>
+              </h3>
+              <p className="text-sm text-text-muted">
+                Три инструмента для разработчиков в одном месте.
+              </p>
+            </div>
+            <div>
+              <h4 className="mb-4 text-sm font-semibold">Продукты</h4>
+              <ul className="space-y-2 text-sm text-text-muted">
+                <li><Link href="/portfolio" className="hover:text-text-primary">Portfolio</Link></li>
+                <li><Link href="/retro" className="hover:text-text-primary">Retro Board</Link></li>
+                <li><Link href="/reader" className="hover:text-text-primary">Article Reader</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="mb-4 text-sm font-semibold">Компания</h4>
+              <ul className="space-y-2 text-sm text-text-muted">
+                <li><a href="#" className="hover:text-text-primary">О нас</a></li>
+                <li><a href="#" className="hover:text-text-primary">Блог</a></li>
+                <li><a href="#" className="hover:text-text-primary">Контакты</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="mb-4 text-sm font-semibold">Юридическое</h4>
+              <ul className="space-y-2 text-sm text-text-muted">
+                <li><a href="#" className="hover:text-text-primary">Конфиденциальность</a></li>
+                <li><a href="#" className="hover:text-text-primary">Условия</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 border-t pt-8 text-center text-sm text-text-muted" style={{ borderColor: "#2a2a3a" }}>
+            &copy; 2025 DevToolKit. Built with passion.
+          </div>
         </div>
       </footer>
     </main>
@@ -206,13 +335,15 @@ function ProductCard({
   title,
   description,
   href,
+  icon,
 }: {
   title: string;
   description: string;
   href: string;
+  icon: string;
 }) {
   return (
-    <a
+    <Link
       href={href}
       className="group block rounded-xl p-8 transition-all hover:translate-y-[-4px]"
       style={{
@@ -221,11 +352,38 @@ function ProductCard({
         border: "1px solid #2a2a3a",
       }}
     >
+      <div className="mb-4 text-3xl">{icon}</div>
       <h3 className="mb-2 text-xl font-semibold text-neon-cyan transition-colors group-hover:text-neon-magenta">
         {title}
       </h3>
       <p className="text-text-secondary">{description}</p>
-    </a>
+    </Link>
+  );
+}
+
+function StepCard({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="text-center">
+      <div
+        className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-black"
+        style={{
+          background: "linear-gradient(135deg, #00f0ff, #ff00ff)",
+          boxShadow: "0 0 20px rgba(0, 240, 255, 0.5)",
+        }}
+      >
+        {number}
+      </div>
+      <h3 className="mb-2 text-xl font-semibold">{title}</h3>
+      <p className="text-text-secondary">{description}</p>
+    </div>
   );
 }
 
@@ -283,7 +441,7 @@ function PricingCard({
         ))}
       </ul>
 
-      <a
+      <Link
         href={href}
         className="block w-full rounded-lg py-3 text-center text-sm font-medium transition-all hover:scale-105"
         style={
@@ -300,7 +458,28 @@ function PricingCard({
         }
       >
         {cta}
-      </a>
+      </Link>
+    </div>
+  );
+}
+
+function FAQItem({
+  question,
+  answer,
+}: {
+  question: string;
+  answer: string;
+}) {
+  return (
+    <div
+      className="rounded-xl p-6"
+      style={{
+        background: "rgba(18, 18, 26, 0.8)",
+        border: "1px solid #2a2a3a",
+      }}
+    >
+      <h3 className="mb-2 font-semibold">{question}</h3>
+      <p className="text-text-secondary">{answer}</p>
     </div>
   );
 }
