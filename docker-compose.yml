@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: devtoolkit
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backends/python
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/devtoolkit
+      REDIS_URL: redis://host.docker.internal:6379/0
+      JWT_SECRET: dev-secret-change-in-production
+      ALLOWED_ORIGINS: '["http://localhost:3000"]'
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
