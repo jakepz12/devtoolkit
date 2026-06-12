@@ -12,6 +12,11 @@ const navItems = [
   { href: "/reader", label: "Article Reader", icon: "📖" },
 ];
 
+const bottomNavItems = [
+  { href: "/profile", label: "Profile", icon: "👤" },
+  { href: "/settings", label: "Settings", icon: "⚙️" },
+];
+
 export default function DashboardLayout({
   children,
 }: {
@@ -67,6 +72,27 @@ export default function DashboardLayout({
               </li>
             ))}
           </ul>
+
+          <div className="mt-8 border-t pt-4" style={{ borderColor: "#2a2a3a" }}>
+            <ul className="space-y-1">
+              {bottomNavItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                      pathname === item.href
+                        ? "bg-neon-cyan/10 text-neon-cyan"
+                        : "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+                    )}
+                  >
+                    <span>{item.icon}</span>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </nav>
 
         {/* User */}
