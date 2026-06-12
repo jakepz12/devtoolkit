@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api import auth, portfolio
+from app.api import auth, portfolio, articles, retro
 from app.utils.database import engine, Base
 
 
@@ -33,6 +33,8 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(portfolio.router, prefix="/api/v1/portfolio", tags=["portfolio"])
+app.include_router(articles.router, prefix="/api/v1/articles", tags=["articles"])
+app.include_router(retro.router, prefix="/api/v1/retro", tags=["retro"])
 
 
 @app.get("/health")
