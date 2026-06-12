@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RetroBoard } from "@/components/retro/retro-board";
 
 const templates = [
   {
@@ -35,8 +36,19 @@ export default function RetroPage() {
   const [title, setTitle] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("start_stop_continue");
   const [step, setStep] = useState<"create" | "board">("create");
+  const [shareCode, setShareCode] = useState("");
 
-  const selectedT = templates.find((t) => t.id === selectedTemplate)!;
+  const handleCreate = () => {
+    // Generate random share code
+    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    setShareCode(code);
+    setStep("board");
+  };
+
+  const handleExport = () => {
+    // TODO: Implement PDF export
+    alert("PDF export coming soon!");
+  };
 
   if (step === "board") {
     return (
@@ -45,44 +57,12 @@ export default function RetroPage() {
           <div>
             <h1 className="text-2xl font-bold">{title || "Retro Board"}</h1>
             <p className="text-sm text-text-muted">
-              {selectedT.name} &middot; Share code: RETRO-XXXX
+              Share code: <span className="font-mono text-neon-cyan">{shareCode}</span>
             </p>
           </div>
-          <Button variant="secondary" size="sm">
-            Export PDF
-          </Button>
         </div>
 
-        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${selectedT.columns.length}, 1fr)` }}>
-          {selectedT.columns.map((col) => (
-            <div
-              key={col}
-              className="rounded-xl p-4"
-              style={{
-                background: "rgba(18, 18, 26, 0.8)",
-                border: "1px solid #2a2a3a",
-                minHeight: "300px",
-              }}
-            >
-              <h3 className="mb-4 font-semibold text-neon-cyan">{col}</h3>
-              <div className="space-y-2">
-                <div
-                  className="rounded-lg p-3 text-sm"
-                  style={{ background: "rgba(0, 240, 255, 0.05)" }}
-                >
-                  Sample card for {col}
-                  <div className="mt-2 flex items-center gap-2">
-                    <button className="text-xs text-neon-cyan">+1</button>
-                    <span className="text-xs text-text-muted">0 votes</span>
-                  </div>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="mt-2 w-full">
-                + Add card
-              </Button>
-            </div>
-          ))}
-        </div>
+        <RetroBoard template={selectedTemplate} onExport={handleExport} />
       </div>
     );
   }
@@ -160,7 +140,7 @@ export default function RetroPage() {
 
           <Button
             className="w-full"
-            onClick={() => setStep("board")}
+            onClick={handleCreate}
             disabled={!title}
           >
             Create Retro Session
